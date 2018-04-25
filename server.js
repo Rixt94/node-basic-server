@@ -38,7 +38,7 @@ app.use('*', function (req, res, next) {
 // http://expressjs.com/en/guide/error-handling.html
 app.use((err, req, res, next) => {
 	console.log('Catch-all error handler was called.')
-	console.log(err)
+	console.log(err.toString())
 
 	res.status(404).json(err).end()	
 })
@@ -46,7 +46,7 @@ app.use((err, req, res, next) => {
 const port = process.env.PORT || 3000
 
 app.listen(port, () => {
-	console.log('De server draait op port ' + port)
+	console.log('Server is running on port ' + port)
 })
 
 module.exports = app

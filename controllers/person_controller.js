@@ -1,14 +1,22 @@
 //
 // CRUD operaties op person
 //
-let Person = require('../model/Person')
+const Person = require('../model/Person')
+const assert = require('assert')
 
 let personlist = []
 
 module.exports = {
 
     createPerson(req, res, next) {
-        console.log('personcontroller.createPerson')
+        console.log('personcontroller.createPerson called')
+
+        // Check that req.body has the expected properties
+        assert(req.body.firstname, "Parameter 'firstname' is missing.");
+        assert(req.body.lastname, "Argument 'lastname' is missing.");
+        assert.equal(typeof (req.body.firstname), 'string', "Argument 'firstname' must be a string.");
+        assert.equal(typeof (req.body.lastname), 'string', "Argument 'lastname' must be a string.");
+
         const firstname = req.body.firstname
         const lastname = req.body.lastname
         console.log("We got " + firstname + " " + lastname)
@@ -20,16 +28,19 @@ module.exports = {
         res.status(200).json(user).end();
     },
 
-    readPerson(req, res, next) {
+    getAllPersons(req, res, next) {
         res.status(200).json(personlist).end();
     },
 
-    updatePerson(req, res, next) {
-        let user = new Person("Robin", "Schellius")
-        res.status(200).json(user).end();
-    },
-    
-    deletePerson(req, res, next) {
+    //
+    //
+    //
+    deletePersonById(req, res, next) {
+        // Check that req.body has the expected properties
+        assert(req.params.id, "Argument 'id' is missing.");
+        assert.ok(!isNaN(req.params.id) && req.params.id >= 0, "Argument 'id' must be a positive integer");
+        
+        logger.debug('deletePersonById called. id = ', req.params.id);
         // vind de juiste person om te deleten
         const id = req.params.id
         console.log('deletePerson id = ' + id)
@@ -49,10 +60,16 @@ module.exports = {
     },
 
     getPersonById(req, res, next) {
-
-        let user = new Person("Robin", "Schellius")
-        res.status(200).json(user).end();
+        next('Not implemented yet')
     },
+
+    replacePersonById(req, res, next) {
+        next('Not implemented yet')
+    },
+
+    updatePersonById(req, res, next) {
+        next('Not implemented yet')
+    }
 
 
 }

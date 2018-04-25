@@ -1,14 +1,22 @@
-// module.exports = {}
+// 
+//
+//
+const assert = require('assert')
 
 class Person {
 
     constructor(firstname, lastname){
-        this._firstname = firstname;
-        this._lastname = lastname;
+        assert(firstname, "Parameter 'firstname' is missing.");
+        assert(lastname, "Argument 'lastname' is missing.");
+
+        this.name = {
+            firstname: firstname,
+            lastname: lastname
+        }
     }
 
     getfirstname(){
-        return this._firstname;
+        return this.name.firstname;
     }
 }
 
