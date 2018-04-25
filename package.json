@@ -1,11 +1,11 @@
 {
-  "name": "les-2",
+  "name": "node_basic_server",
   "version": "1.0.0",
   "description": "Mijn eerste node server.",
   "main": "server.js",
   "scripts": {
     "test-original": "echo \"Error: no test specified\" && exit 1",
-    "test": "./node_modules/.bin/mocha --reporter spec --exit",
+    "test": "./node_modules/.bin/mocha --exit",
     "start": "nodemon server.js"
   },
   "repository": {
