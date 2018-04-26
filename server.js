@@ -29,24 +29,24 @@ app.get('/api/greeting', function (req, res, next) {
 // Wanneer we hier komen bestond de gevraagde endpoint niet
 app.use('*', function (req, res, next) {
 	console.log('De endpoint die je zocht bestaat niet')
-	next("Deze endpoint bestaat niet")
+	const error = new ApiError("Deze endpoint bestaat niet", 404)
+	next(error)
 })
 
 // catch-all error handler volgens Express documentatie
 // http://expressjs.com/en/guide/error-handling.html
 app.use((err, req, res, next) => {
 	console.log('Catch-all error handler was called.')
-	console.log(err.toString())
+	// err is nu altijd een ApiError! 
+	console.log(err)
 
-	const error = new ApiError(err.toString(), 404)
-
-	res.status(404).json(error).end()	
+	res.status(err.code).json(err).end()	
 })
 
 const port = process.env.PORT || 3000
 
 app.listen(port, () => {
-	console.log('De server draait op port ' + port)
+	console.log('Server running on port ' + port)
 })
 
 module.exports = app
