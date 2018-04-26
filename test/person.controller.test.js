@@ -32,7 +32,7 @@ describe('Person API POST', () => {
                 "lastname": "LastName"
             })
             .end((err, res) => {
-                res.should.have.status(404);
+                res.should.have.status(500);
                 res.body.should.be.a('object');
 
                 const error = res.body
@@ -55,6 +55,14 @@ describe('Person API POST', () => {
     })
 
     it('should throw an error when no valid lastname is provided', (done) => {
+        // Write your test here
+        done()
+    })
+
+});
+
+describe('Person API GET', () => {
+    it('should return an array of persons', (done) => {
         // Write your test here
         done()
     })

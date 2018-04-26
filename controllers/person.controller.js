@@ -19,7 +19,6 @@ module.exports = {
         try {
             assert(typeof (person.firstname) === 'string', 'firstname must be a string')
             assert(typeof (person.lastname) === 'string', 'lastname must be a string')
-            assert(person.firstname.trim().length > 2, 'firstname must be at least 3 characters')
         }
         catch(ex) {
             const error = new ApiError(ex.toString(), 500)
@@ -27,8 +26,8 @@ module.exports = {
             return
         }
 
-        const firstname = person.firstname.trim()
-        const lastname = person.lastname.trim()
+        const firstname = person.firstname
+        const lastname = person.lastname
 
         let user = new Person(firstname, lastname)
         personlist.push(user)
