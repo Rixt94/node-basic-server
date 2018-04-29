@@ -1,10 +1,12 @@
 const express = require('express')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
-const person_routes = require('./routes/person_routes')
+const person_routes = require('./routes/person.routes')
+const auth_routes = require('./routes/authentication.routes')
 const ApiError = require('./model/ApiError')
+const settings = require('./config/config')
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || settings.webPort
 
 let app = express()
 
@@ -14,7 +16,9 @@ app.use(bodyParser.json())
 // Instal Morgan as logger
 app.use(morgan('dev'))
 
-// Demo - preprocessing catch-all endpoint continue to next.
+// Preprocessing catch-all endpoint
+// The perfect place to check that the user performing the request 
+// has authorisation to do things on our server
 app.use('*', function(req, res, next){
 	next()
 })
@@ -29,29 +33,16 @@ app.use('*', function (req, res, next) {
 	next(error)
 })
 
-// Catch-all error handler according to Express documentation
-// err should always be an ApiError! 
-// http://expressjs.com/en/guide/error-handling.html
+// Catch-all error handler according to Express documentation - err should always be an ApiError! 
+// See also http://expressjs.com/en/guide/error-handling.html
 app.use((err, req, res, next) => {
-	// console.log('Catch-all error handler was called.')
-
-	// Optionally we could check the type of error we get, and take appropriate action.
-	if (err instanceof require('assert').AssertionError) {
-		// An AssertionError has no err.code, so we add it ourselves.
-		// This should never happen when we throw valid ApiErrors.
-		console.log('AssertionError: ' + err)
-		err.code = 500
-	} else if (err instanceof ApiError) {
-		console.log('ApiError: ' + err)
-	} else {
-		console.log('Other Error: ' + err)
-	}
-
-	res.status(err.code).json(err).end()	
+	res.status((err.code || 401)).json(err).end()	
 })
 
+// Start listening for incoming requests.
 app.listen(port, () => {
 	console.log('Server running on port ' + port)
 })
 
+// Testcases need our app - export it.
 module.exports = app
