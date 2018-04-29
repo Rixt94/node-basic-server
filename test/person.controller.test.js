@@ -19,8 +19,10 @@ describe('Person API POST', () => {
                 res.body.should.be.a('object');
 
                 let response = res.body
-                response.should.have.property('firstname').equals('FirstName')
-                response.should.have.property('lastname').equals('LastName')
+                response.should.have.property('name').which.is.an('object')
+                let name = response.name
+                name.should.have.property('firstname').equals('FirstName')
+                name.should.have.property('lastname').equals('LastName')
                 done();
         });
     });
