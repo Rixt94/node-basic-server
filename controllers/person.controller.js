@@ -9,25 +9,29 @@ let personlist = []
 
 module.exports = {
 
-    //
-    // Create a new person and add it to the list.
-    //
+    /**
+     * Create a new person and add it to the list.
+     * 
+     * @param {*} req The incoming request.
+     * @param {*} res The newly created person.
+     * @param {*} next ApiError when id is invalid.
+     */
     createPerson(req, res, next) {
-        console.log('personcontroller.createPerson')
-        const person = req.body
+        // console.log('personcontroller.createPerson')
         
         try {
-            assert(typeof (person.firstname) === 'string', 'firstname must be a string')
-            assert(typeof (person.lastname) === 'string', 'lastname must be a string')
+            assert(typeof (req.body.name) === 'object', 'name must be an object containing firstname and lastname.')
+            assert(typeof (req.body.name.firstname) === 'string', 'firstname must be a string.')
+            assert(typeof (req.body.name.lastname) === 'string', 'lastname must be a string.')
         }
         catch(ex) {
-            const error = new ApiError(ex.toString(), 500)
+            const error = new ApiError(ex.toString(), 422)
             next(error)
             return
         }
 
-        const firstname = person.firstname
-        const lastname = person.lastname
+        const firstname = req.body.name.firstname
+        const lastname = req.body.name.lastname
 
         let user = new Person(firstname, lastname)
         personlist.push(user)
@@ -35,24 +39,31 @@ module.exports = {
         res.status(200).json(user).end();
     },
 
-    //
-    // Get the list of persons. Returns the list as an array.
-    //
+    /**
+     * Get the current list of persons.
+     * 
+     * @param {*} req The incoming request. No properties required. 
+     * @param {*} res Respond contains the list as an array.
+     * @param {*} next Unused here (no errors expected.)
+     */
     getAllPersons(req, res, next) {
         res.status(200).json(personlist).end();
     },
 
-    //
-    // Get a person by given id. The id is the index in the personlist.
-    // When given an invalid index, respond with an error 
-    //
+    /**
+     * Get a person by given id. The id is the index in the personlist.
+     * 
+     * @param {*} req req.params.id is the person's id in the personlist.
+     * @param {*} res The requested person object.
+     * @param {*} next ApiError when id is invalid.
+     */
     getPersonById(req, res, next) {
         const id = req.params.id
         try {
-            assert(isNumber(id) && id >= 0 && id < personlist.length, 'parameter id is invalid: ' + id)
+            assert(!isNaN(id) && id >= 0 && id < personlist.length, 'parameter id is invalid: ' + id)
         }
         catch (ex) {
-            const error = new ApiError(ex.toString(), 500)
+            const error = new ApiError(ex.toString(), 404)
             next(error)
             return
         }
@@ -60,37 +71,50 @@ module.exports = {
     },
 
     //
-    // Replace an existing person in the list. We need an id and a new person 
-    // object. The new person will be stored at index id.
     //
+    
+    /**
+     * Replace an existing person in the list. We need an id and a new person 
+     * object. The new person will be stored at index id.
+     * 
+     * @param {*} req req.params.id is the person's id in the personlist. req.body contains the new person object.
+     * @param {*} res The updated person object.
+     * @param {*} next ApiError when id and/or person object are invalid.
+     */
     updatePersonById(req, res, next) {
         const id = req.params.id
         const person = req.body
         try {
             // We need a valid id 
-            assert(isNumber(id) && id >= 0 && id < personlist.length, 'parameter id is invalid: ' + id)
+            assert(!isNaN(id) && id >= 0 && id < personlist.length, 'parameter id is invalid: ' + id)
             // And we need a valid person
-            assert(person.firstname, 'firstname must be provided')
-            assert(typeof (person.firstname) === 'string', 'firstname must be a string')
-            assert(req.body.lastname, 'lastname must be provided')
+            assert(typeof (person) === 'object', 'name must be a valid object')
+            assert(person.hasOwnProperty('name'), 'A person must hava a name object')
+            assert(typeof (person.name.firstname) === 'string', 'firstname must be a string')
+            assert(typeof (person.name.firstname) === 'string', 'firstname must be a string')
         }
         catch (ex) {
-            const error = new ApiError(ex.toString(), 500)
+            const error = new ApiError(ex.toString(), 404)
             next(error)
             return
         }
-        res.status(200).json(personlist[id]).end();
 
-
-
-        let user = new Person("Robin", "Schellius")
+        let user = new Person(req.body.name.firstname, req.body.name.lastname)
+        personlist[id] = user
         res.status(200).json(user).end();
     },
     
     deletePersonById(req, res, next) {
-        // vind de juiste person om te deleten
         const id = req.params.id
-        console.log('deletePerson id = ' + id)
+        try {
+            // We need a valid id 
+            assert(!isNaN(id) && id >= 0 && id < personlist.length, 'parameter id is invalid: ' + id)
+        }
+        catch (ex) {
+            const error = new ApiError(ex.toString(), 404)
+            next(error)
+            return
+        }
 
         // delete die person
         const removedPerson = personlist.splice(id, 1)

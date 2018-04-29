@@ -4,46 +4,51 @@ const bodyParser = require('body-parser')
 const person_routes = require('./routes/person_routes')
 const ApiError = require('./model/ApiError')
 
+const port = process.env.PORT || 3000
+
 let app = express()
 
-// bodyParser zorgt dat we de body uit een request kunnen gebruiken,
-app.use(bodyParser.json());
+// bodyParser parses the body from a request
+app.use(bodyParser.json())
 
-// Installeer Morgan als logger
-app.use(morgan('dev'));
+// Instal Morgan as logger
+app.use(morgan('dev'))
 
+// Demo - preprocessing catch-all endpoint continue to next.
 app.use('*', function(req, res, next){
 	next()
 })
 
+// Regular endpoints
 app.use('/api', person_routes)
 
-app.get('/api/greeting', function (req, res, next) {
-	let mygreeting = {
-		text: "Hello all!",
-		author: "Robin Schellius"
-	}
-	res.send(mygreeting)
-})
-
-// Wanneer we hier komen bestond de gevraagde endpoint niet
+// Postprocessing; catch all non-existing endpoint requests
 app.use('*', function (req, res, next) {
-	console.log('De endpoint die je zocht bestaat niet')
+	// console.log('Non-existing endpoint')
 	const error = new ApiError("Deze endpoint bestaat niet", 404)
 	next(error)
 })
 
-// catch-all error handler volgens Express documentatie
+// Catch-all error handler according to Express documentation
+// err should always be an ApiError! 
 // http://expressjs.com/en/guide/error-handling.html
 app.use((err, req, res, next) => {
-	console.log('Catch-all error handler was called.')
-	// err is nu altijd een ApiError! 
-	console.log(err)
+	// console.log('Catch-all error handler was called.')
+
+	// Optionally we could check the type of error we get, and take appropriate action.
+	if (err instanceof require('assert').AssertionError) {
+		// An AssertionError has no err.code, so we add it ourselves.
+		// This should never happen when we throw valid ApiErrors.
+		console.log('AssertionError: ' + err)
+		err.code = 500
+	} else if (err instanceof ApiError) {
+		console.log('ApiError: ' + err)
+	} else {
+		console.log('Other Error: ' + err)
+	}
 
 	res.status(err.code).json(err).end()	
 })
-
-const port = process.env.PORT || 3000
 
 app.listen(port, () => {
 	console.log('Server running on port ' + port)

@@ -11,8 +11,10 @@ describe('Person API POST', () => {
         chai.request(server)
             .post('/api/persons')
             .send({
-                "firstname": "  FirstName  ",
-                "lastname": "  LastName   "
+                "name": {
+                    "firstname": "  FirstName  ",
+                    "lastname": "  LastName   "
+                }
             })
             .end((err, res) => {
                 res.should.have.status(200);
@@ -31,15 +33,17 @@ describe('Person API POST', () => {
         chai.request(server)
             .post('/api/persons')
             .send({
-                "lastname": "LastName"
+                "name": {
+                    "lastname": "  LastName   "
+                }
             })
             .end((err, res) => {
-                res.should.have.status(500);
+                res.should.have.status(422);
                 res.body.should.be.a('object');
 
                 const error = res.body
                 error.should.have.property('message')
-                error.should.have.property('code').equals(500)
+                error.should.have.property('code').equals(422)
                 error.should.have.property('datetime')
 
                 done();
@@ -67,6 +71,31 @@ describe('Person API GET', () => {
     it('should return an array of persons', (done) => {
         // Write your test here
         done()
+    })
+
+});
+
+describe('Person API PUT', () => {
+    it('should return the updated person when providing valid input', (done) => {
+        chai.request(server)
+            .put('/api/persons/0')
+            .send({
+                "name": {
+                    "firstname": "NewFirstName",
+                    "lastname": "NewLastName"
+                }
+            })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+
+                let response = res.body
+                response.should.have.property('name').which.is.an('object')
+                let name = response.name
+                name.should.have.property('firstname').equals('NewFirstName')
+                name.should.have.property('lastname').equals('NewLastName')
+                done();
+            });
     })
 
 });
