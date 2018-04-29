@@ -1,10 +1,10 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var server = require('../server');
+var chai = require('chai')
+var chaiHttp = require('chai-http')
+var server = require('../server')
 
-chai.should();
+chai.should()
 
-chai.use(chaiHttp);
+chai.use(chaiHttp)
 
 describe('Person API POST', () => {
     it('should return a valid person when posting a valid object', (done) => {
@@ -17,17 +17,17 @@ describe('Person API POST', () => {
                 }
             })
             .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a('object');
+                res.should.have.status(200)
+                res.body.should.be.a('object')
 
-                let response = res.body
+                const response = res.body
                 response.should.have.property('name').which.is.an('object')
-                let name = response.name
+                const name = response.name
                 name.should.have.property('firstname').equals('FirstName')
                 name.should.have.property('lastname').equals('LastName')
-                done();
-        });
-    });
+                done()
+        })
+    })
 
     it('should throw an error when no firstname is provided', (done) => {
         chai.request(server)
@@ -38,16 +38,16 @@ describe('Person API POST', () => {
                 }
             })
             .end((err, res) => {
-                res.should.have.status(422);
-                res.body.should.be.a('object');
+                res.should.have.status(422)
+                res.body.should.be.a('object')
 
                 const error = res.body
                 error.should.have.property('message')
                 error.should.have.property('code').equals(422)
                 error.should.have.property('datetime')
 
-                done();
-            });
+                done()
+            })
     })
 
     it('should throw an error when no valid firstname is provided', (done) => {
@@ -65,7 +65,7 @@ describe('Person API POST', () => {
         done()
     })
 
-});
+})
 
 describe('Person API GET', () => {
     it('should return an array of persons', (done) => {
@@ -73,7 +73,7 @@ describe('Person API GET', () => {
         done()
     })
 
-});
+})
 
 describe('Person API PUT', () => {
     it('should return the updated person when providing valid input', (done) => {
@@ -86,16 +86,31 @@ describe('Person API PUT', () => {
                 }
             })
             .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a('object');
+                // Check: 
+                // Verify that the person that we get is the updated person.
+                res.should.have.status(200)
+                res.body.should.be.a('object')
 
-                let response = res.body
+                const response = res.body
                 response.should.have.property('name').which.is.an('object')
-                let name = response.name
+                const name = response.name
                 name.should.have.property('firstname').equals('NewFirstName')
                 name.should.have.property('lastname').equals('NewLastName')
-                done();
-            });
+
+                // Double check:
+                // Send a GET-request to verify that the person has been updated.
+                chai.request(server)
+                    .get('/api/persons')
+                    .end((err, res) => {
+                        res.should.have.status(200)
+                        res.body.should.be.an('array')
+                        const result = res.body
+                        result[0].name.should.have.property('firstname').equals('NewFirstName')
+                        result[0].name.should.have.property('lastname').equals('NewLastName')
+
+                        done()
+                    })
+            })
     })
 
-});
+})
