@@ -36,7 +36,7 @@ module.exports = {
         let user = new Person(firstname, lastname)
         personlist.push(user)
 
-        res.status(200).json(user).end();
+        res.status(200).json(user.toString()).end();
     },
 
     /**
@@ -67,7 +67,7 @@ module.exports = {
             next(error)
             return
         }
-        res.status(200).json(personlist[id]).end();
+        res.status(200).json(personlist[id].toString()).end();
     },
 
     //
@@ -101,7 +101,7 @@ module.exports = {
 
         let user = new Person(req.body.name.firstname, req.body.name.lastname)
         personlist[id] = user
-        res.status(200).json(user).end();
+        res.status(200).json(user.toString()).end();
     },
     
     deletePersonById(req, res, next) {
@@ -120,7 +120,7 @@ module.exports = {
         const removedPerson = personlist.splice(id, 1)
         if(removedPerson.length === 1) {
             // gelukt; status = 200
-            res.status(200).json(removedPerson).end();
+            res.status(200).json(removedPerson.toString()).end();
         } else {
             // mislukt; fout -> next(error)
             let error = {

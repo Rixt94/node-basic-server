@@ -1,8 +1,9 @@
 //
 // Authentication controller
 //
-const ApiError = require('../model/ApiError')
 const assert = require('assert')
+const ApiError = require('../model/ApiError')
+const Person = require('../model/Person')
 const auth = require('../util/auth/authentication')
 
 module.exports = {
@@ -15,9 +16,9 @@ module.exports = {
      * @param {*} next ApiError when token is invalid, or req containing logged-in user.
      */
     validateToken(req, res, next) {
-        console.log("VALIDATE TOKEN")
+        console.log('validateToken called')
 
-        const token = (req.header('X-Access-Token')) || '';
+        const token = (req.header('Authorization')) || '';
 
         auth.decodeToken(token, (err, payload) => {
             if (err) {
@@ -61,23 +62,24 @@ module.exports = {
             return
         }
 
+        // Verify that the email exists and that the password matches the email.
         const validated = true
 
-        // Verify that the email exists and that the password matches the email.
         if (validated) {
-            // Generate JWT
-            const token = { 
+            const userinfo = { 
                 token: auth.encodeToken(req.body.email), 
                 email: req.body.email 
             }
-            res.status(200).json(token).end();
+            res.status(200).json(userinfo).end();
         } else {
             next(new ApiError('Invalid credentials, bye.', 401))
         }
     },
     
     /**
-     * Authenticate the incoming request by validating the JWT token. 
+     * Register a new user. The user should provide a firstname, lastname, emailaddress and 
+     * password. The emailaddress should be unique; when it exists, an error must be thrown.
+     * The password must be encrypted and must never be stored as plain text! 
      * 
      * @param {*} req The incoming request, should contain valid JWT token in headers.
      * @param {*} res None. The request is passed on for further processing.
@@ -85,6 +87,28 @@ module.exports = {
      */
     register(req, res, next) {
 
+        try {
+            assert(typeof (req.body.firstname) === 'string', 'firstname must be a string.')
+            assert(typeof (req.body.lastname) === 'string', 'lastname must be a string.')
+            assert(typeof (req.body.email) === 'string', 'email must be a string.')
+            assert(typeof (req.body.password) === 'string', 'password must be a string.')
+        }
+        catch (ex) {
+            const error = new ApiError(ex.toString(), 422)
+            next(error)
+            return
+        }
+
+        let user = new Person(
+            req.body.firstname, 
+            req.body.lastname,
+            req.body.email,
+            req.body.password,
+        )
+        // console.log(user.toString())
+        // personlist.push(user)
+
+        res.status(200).json(user.toString()).end();
     }
 
 }
