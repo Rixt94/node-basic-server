@@ -1,63 +1,58 @@
 //
 // Authentication routes
 //
-const router = require('express').Router();
-const auth = require('../util/auth/authentication');
+const routes = require('express').Router();
+const AuthController = require('../controllers/authentication.controller')
 
-//
-// Catch all except login
-//
-router.all(new RegExp("[^(\/login)]"), function (req, res, next) {
+// The router endpoints that we provide
+routes.post('/login', AuthController.login)
+routes.post('/register', AuthController.register)
 
-    //
-    console.log("VALIDATE TOKEN")
+module.exports = routes
 
-    var token = (req.header('X-Access-Token')) || '';
+// //
+// // Catch all except login
+// //
+// router.all(new RegExp("[^(\/login)]"), function (req, res, next) {
 
-    auth.decodeToken(token, (err, payload) => {
-        if (err) {
-            console.log('Error handler: ' + err.message);
-            res.status((err.status || 401)).json({ error: new Error("Not authorised").message });
-        } else {
-            next();
-        }
-    });
-});
+// });
 
 
-//
-// Login with {"username":"<username>", "password":"<password>"}
-//
-router.route('/login')
+// //
+// // Login with {"username":"<username>", "password":"<password>"}
+// //
+// router.route('/login')
 
-    .post(function (req, res) {
+//     .post(function (req, res) {
 
-        //
-        // Get body params or ''
-        //
-        var username = req.body.username || '';
-        var password = req.body.password || '';
+//         console.log('/login called')
+//         console.dir(req.body)
+//         //
+//         // Get body params or ''
+//         //
+//         var username = req.body.username || '';
+//         var password = req.body.password || '';
 
-        //
-        // Check in datasource for user & password combo.
-        //
-        result = users.filter(function (user) {
-            if (user.username === username && user.password === password) {
-                return (user);
-            }
-        });
+//         //
+//         // Check in datasource for user & password combo.
+//         //
+//         result = users.filter(function (user) {
+//             if (user.username === username && user.password === password) {
+//                 return (user);
+//             }
+//         });
 
-        // Debug
-        console.log("result: " + JSON.stringify(result[0]));
+//         // Debug
+//         console.log("result: " + JSON.stringify(result[0]));
 
-        // Generate JWT
-        if (result[0]) {
-            res.status(200).json({ "token": auth.encodeToken(username), "username": username });
-        } else {
-            res.status(401).json({ "error": "Invalid credentials, bye" })
-        }
+//         // Generate JWT
+//         if (result[0]) {
+//             res.status(200).json({ "token": auth.encodeToken(username), "username": username });
+//         } else {
+//             res.status(401).json({ "error": "Invalid credentials, bye" })
+//         }
 
-    });
+//     });
 
 
-module.exports = router;
+// module.exports = router;

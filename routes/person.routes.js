@@ -1,6 +1,7 @@
-
-let express = require('express')
-let routes = express.Router()
+//
+// Person.routes.js
+//
+let routes = require('express').Router()
 let personcontroller = require('../controllers/person.controller')
 
 // hier schrijven we router endpoints
