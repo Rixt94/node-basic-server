@@ -4,7 +4,11 @@
 const assert = require('assert')
 const ApiError = require('../model/ApiError')
 const Person = require('../model/Person')
+const List = require('../model/List')
 const auth = require('../util/auth/authentication')
+
+// Globally initialize the personlist and export it
+let personlist = new List()
 
 module.exports = {
 
@@ -79,11 +83,11 @@ module.exports = {
     /**
      * Register a new user. The user should provide a firstname, lastname, emailaddress and 
      * password. The emailaddress should be unique; when it exists, an error must be thrown.
-     * The password must be encrypted and must never be stored as plain text! 
+     * The password will be encrypted by the Person class and must never be stored as plain text! 
      * 
-     * @param {*} req The incoming request, should contain valid JWT token in headers.
-     * @param {*} res None. The request is passed on for further processing.
-     * @param {*} next ApiError when token is invalid, or req containing logged-in user.
+     * @param {*} req The incoming request, containing valid properties.
+     * @param {*} res The created user on success, or error on invalid properties.
+     * @param {*} next ApiError when supplied properties are invalid.
      */
     register(req, res, next) {
 
@@ -94,7 +98,7 @@ module.exports = {
             assert(typeof (req.body.password) === 'string', 'password must be a string.')
         }
         catch (ex) {
-            const error = new ApiError(ex.toString(), 422)
+            const error = new ApiError(ex.toString(), 412)
             next(error)
             return
         }
@@ -105,10 +109,16 @@ module.exports = {
             req.body.email,
             req.body.password,
         )
-        // console.log(user.toString())
-        // personlist.push(user)
-
-        res.status(200).json(user.toString()).end();
+        
+        personlist.add(user, (err, result) => {
+            if(err){
+                // Duplicate email found
+                const error = new ApiError(err, 412)
+                next(error)
+            } else {
+                res.status(200).json(user.toString()).end();
+            }
+        })
     }
 
 }

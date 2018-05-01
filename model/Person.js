@@ -6,8 +6,8 @@ const ApiError = require('./ApiError')
 const bcrypt = require('bcryptjs');
 
 function validateEmail(email) {
-    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
+    const validator = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return validator.test(email);
 }
 
 // To verify that validateEmail works as expected:
@@ -16,7 +16,7 @@ function validateEmail(email) {
 class Person {
 
     constructor(firstname, lastname, email, password){
-        // Verify that we only create a valid person
+        // Verify that we only create valid persons
         try {
             assert(typeof (firstname) === 'string', 'firstname must be a string')
             assert(typeof (lastname) === 'string', 'lastname must be a string')
@@ -32,7 +32,7 @@ class Person {
         }
 
         this.name = {
-            firstname: firstname.trim(),  // remove whitespace in front and at end
+            firstname: firstname.trim(),  // trim removes whitespace in front and at end
             lastname:  lastname.trim()
         }
         this.email = email.trim()
