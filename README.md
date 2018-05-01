@@ -6,3 +6,20 @@ This basic server contains:
 2. JavaScript classes for OO-like programming
 3. Many async functions illustrating async behavior of Nodejs
 4. JWT authentication
+5. Extensive validation of properties through asserts
+6. Hashed passwords using bcrypt
+7. Examples of BDD testcases using Mocha, Chai and Should
+
+## Usage
+Fork this repo and clone your copy onto your local machine, then run
+
+```
+npm install
+npm start
+```
+
+For testing:
+```
+npm test
+```
+
