@@ -69,22 +69,25 @@ module.exports = {
 
         // Verify that the email exists and that the password matches the email.
         personlist.getByEmail(req.body.email, (err, result) => {
-            console.log(result)
+            console.log(result.toString())
             if(err) {
                 // Email does not exist
                 console.log(err)
                 next(new ApiError('Invalid credentials, bye.', 401))
-            } else if (bcrypt.compareSync(req.body.password.trim(), result.password)) {
-                console.log('passwords match')
-                const userinfo = { 
-                    token: auth.encodeToken(req.body.email), 
-                    email: req.body.email 
-                }
-                res.status(200).json(userinfo).end()
             } else {
-                // Password did not match
-                console.log('passwords DID NOT match')
-                next(new ApiError('Invalid credentials, bye.', 401))
+                bcrypt.compare(req.body.password.trim(), result.password, (err, success) => {
+                    if (success) {
+                        // console.log('passwords match, sending valid token')
+                        const userinfo = {
+                            token: auth.encodeToken(result.email),
+                            email: result.email
+                        }
+                        res.status(200).json(userinfo).end()
+                    } else {
+                        // console.log('passwords DID NOT match')
+                        next(new ApiError('Invalid credentials, bye.', 401))
+                    }
+                })
             }
         })
     },

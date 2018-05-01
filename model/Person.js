@@ -30,22 +30,26 @@ class Person {
         catch (ex) {
             throw(new ApiError(ex.toString(), 422))
         }
-
+        
         this.name = {
             firstname: firstname.trim(),  // trim removes whitespace in front and at end
             lastname:  lastname.trim()
         }
         this.email = email.trim()
         // Encrypt the password - never store a password as plain text!
-        this.password = bcrypt.hashSync(password.trim(), 8);
+        // this.password = bcrypt.hashSync(password.trim(), 8); // Synchronous version
+        bcrypt.hash(password.trim(), 8, (err, hash) => {    // Asynchronous version
+            if(err) throw(new ApiError(err.toString(), 500))
+            if(hash) this.password = hash
+        })
     }
 
     getFirstname(){
-        return this.name.firstname;
+        return this.name.firstname
     }
 
     getLastname(){
-        return this.name.lastname;
+        return this.name.lastname
     }
 
     getEmail(){
@@ -61,6 +65,9 @@ class Person {
  * This only works when calling console.log(person.toString())! 
  * Using console.log(person) will still print the complete object including 
  * the (encrypted) password!
+ * 
+ * We use a regular function here instead of a fat-arrow function, since 
+ * a fat-arrow (lambda) expression has no access to 'this'.
  */
 Person.prototype.toString = function personToString() {
     var copy = Object.assign({}, this);
