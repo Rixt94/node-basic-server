@@ -6,7 +6,7 @@ const ApiError = require('../model/ApiError')
 const Person = require('../model/Person')
 const List = require('../model/List')
 const auth = require('../util/auth/authentication')
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs')
 
 // Initialize the personlist 
 let personlist = new List()
@@ -15,28 +15,45 @@ module.exports = {
 
     /**
      * Authenticate the incoming request by validating the JWT token. 
+     * On success, we pass further processing to the next express handler.
+     * 
+     * https://www.sitepoint.com/using-json-web-tokens-node-js/
      * 
      * @param {*} req The incoming request, should contain valid JWT token in headers.
-     * @param {*} res None. The request is passed on for further processing.
+     * @param {*} res None. The request is passed to next for further processing.
      * @param {*} next ApiError when token is invalid, or req containing logged-in user.
      */
     validateToken(req, res, next) {
         console.log('validateToken called')
 
-        const token = (req.header('Authorization')) || '';
+        /**
+         * A token can be sent in the body of a request, via a query parameter (in the URL),
+         * or as an HTTP header. We choose the header variant.
+         */
+        const token = req.header('x-access-token') || ''
 
         auth.decodeToken(token, (err, payload) => {
             if (err) {
-                console.log('Error handler: ' + err.message);
-                const error = new ApiError(err.message, 401)
+                // Invalid token
+                const error = new ApiError(err.message || err, 401)
                 next(error)
             } else {
-                conslole.log('authenticated, payload = ')
+                console.log('Authenticated! Payload = ')
                 console.dir(payload)
-                console.log('ADD USER TO REQ HERE!')
-                next();
+
+                /**
+                 * The token still contains the values that we have put in it via the sub-field.
+                 * We could use that in our application to trace actions that a user performs, 
+                 * such as monitoring CRUD operations, by storing the user ID in a logging database.
+                 * Example: User 12345 performed an update operation on item xyz on date dd-mm-yyyy.
+                 * To do so, we attach the payload.sub (or only the ID or email) to the request object.
+                 * In this way, every next express handler has access to it - and could do 
+                 * something smart with it.  
+                 */
+                req.user = payload.sub
+                next()
             }
-        });
+        })
     },
 
     /**
@@ -72,7 +89,6 @@ module.exports = {
             console.log(result.toString())
             if(err) {
                 // Email does not exist
-                console.log(err)
                 next(new ApiError('Invalid credentials, bye.', 401))
             } else {
                 bcrypt.compare(req.body.password.trim(), result.password, (err, success) => {
@@ -94,7 +110,7 @@ module.exports = {
     
     /**
      * Register a new user. The user should provide a firstname, lastname, emailaddress and 
-     * password. The emailaddress should be unique; when it exists, an error must be thrown.
+     * password. The emailaddress should be unique when it exists, an error must be thrown.
      * The password will be encrypted by the Person class and must never be stored as plain text! 
      * 
      * @param {*} req The incoming request, containing valid properties.
@@ -128,16 +144,15 @@ module.exports = {
                 const error = new ApiError(err, 412)
                 next(error)
             } else {
-                // Unique email; person was added to the list.
-                // Options: 
-                // - return status OK, user must issue separate login request
+                // Unique email person was added to the list.
+                // Choices we can make here: 
+                // - return status OK, user must issue separate login request, or
                 // - return valid token, user is immediately logged in.
-
                 const userinfo = {
                     token: auth.encodeToken(req.body.email),
                     email: req.body.email
                 }
-                res.status(200).json(userinfo).end();            }
+                res.status(200).json(userinfo).end()            }
         })
     }
 

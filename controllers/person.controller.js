@@ -47,6 +47,9 @@ module.exports = {
      * @param {*} next Unused here (no errors expected.)
      */
     getAllPersons(req, res, next) {
+        // When authenticated (which we are at this point), we have the user info in the request.
+        // We can use that for example for logging or monitoring.
+        console.log('User info in getAllPersons: ' + req.user)  
         res.status(200).json(personlist).end();
     },
 

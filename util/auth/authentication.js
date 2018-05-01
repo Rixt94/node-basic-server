@@ -1,9 +1,9 @@
 //
 // Authentication using JSON Web Token (JWT)
 //
-const settings = require('../../config/config');
-const moment = require('moment');
-const jwt = require('jwt-simple');
+const settings = require('../../config/config')
+const moment = require('moment')
+const jwt = require('jwt-simple')
 
 //
 // Encode (from username to token)
@@ -13,35 +13,32 @@ function encodeToken(username) {
         exp: moment().add(10, 'days').unix(),
         iat: moment().unix(),
         sub: username
-    };
-    return jwt.encode(playload, settings.secretkey);
+    }
+    return jwt.encode(playload, settings.secretkey)
 }
 
 //
 // Decode (from token to username)
 //
-function decodeToken(token, cb) {
+function decodeToken(token, callback) {
 
     try {
-        const payload = jwt.decode(token, settings.secretkey);
+        const payload = jwt.decode(token, settings.secretkey)
 
-        // Check if the token has expired. To do: Trigger issue in db ..
-        const now = moment().unix();
-
-        // Check if the token has expired
+        // Check if the token has expired.
+        const now = moment().unix()
         if (now > payload.exp) {
-            console.log('Token has expired.');
+            // console.log('Token has expired.')
+            callback('Token has expired!', null)
+        } else {
+            callback(null, payload)
         }
-
-        // Return
-        cb(null, payload);
-
     } catch (err) {
-        cb(err, null);
+        callback(err, null)
     }
 }
 
 module.exports = {
     encodeToken,
     decodeToken
-};
+}
