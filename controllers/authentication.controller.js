@@ -6,8 +6,9 @@ const ApiError = require('../model/ApiError')
 const Person = require('../model/Person')
 const List = require('../model/List')
 const auth = require('../util/auth/authentication')
+const bcrypt = require('bcryptjs');
 
-// Globally initialize the personlist and export it
+// Initialize the personlist 
 let personlist = new List()
 
 module.exports = {
@@ -67,17 +68,25 @@ module.exports = {
         }
 
         // Verify that the email exists and that the password matches the email.
-        const validated = true
-
-        if (validated) {
-            const userinfo = { 
-                token: auth.encodeToken(req.body.email), 
-                email: req.body.email 
+        personlist.getByEmail(req.body.email, (err, result) => {
+            console.log(result)
+            if(err) {
+                // Email does not exist
+                console.log(err)
+                next(new ApiError('Invalid credentials, bye.', 401))
+            } else if (bcrypt.compareSync(req.body.password.trim(), result.password)) {
+                console.log('passwords match')
+                const userinfo = { 
+                    token: auth.encodeToken(req.body.email), 
+                    email: req.body.email 
+                }
+                res.status(200).json(userinfo).end()
+            } else {
+                // Password did not match
+                console.log('passwords DID NOT match')
+                next(new ApiError('Invalid credentials, bye.', 401))
             }
-            res.status(200).json(userinfo).end();
-        } else {
-            next(new ApiError('Invalid credentials, bye.', 401))
-        }
+        })
     },
     
     /**
@@ -103,21 +112,29 @@ module.exports = {
             return
         }
 
-        let user = new Person(
+        const person = new Person(
             req.body.firstname, 
             req.body.lastname,
             req.body.email,
             req.body.password,
         )
         
-        personlist.add(user, (err, result) => {
-            if(err){
+        personlist.add(person, (err, result) => {
+            if(err) {
                 // Duplicate email found
                 const error = new ApiError(err, 412)
                 next(error)
             } else {
-                res.status(200).json(user.toString()).end();
-            }
+                // Unique email; person was added to the list.
+                // Options: 
+                // - return status OK, user must issue separate login request
+                // - return valid token, user is immediately logged in.
+
+                const userinfo = {
+                    token: auth.encodeToken(req.body.email),
+                    email: req.body.email
+                }
+                res.status(200).json(userinfo).end();            }
         })
     }
 

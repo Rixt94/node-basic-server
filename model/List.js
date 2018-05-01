@@ -25,12 +25,12 @@ class List {
          * a duplicate has already been found.
          * Since the first item must always be pushed onto the empty list, use do/while.
          */
-        let uniqueItems = this.list.filter(function(elem) {
+        let duplicates = this.list.filter(function(elem) {
             // console.log(i, elem)
             return elem.email === value.email
         })
-        // console.log(uniqueItems)
-        if(uniqueItems.length === 0) {
+        // console.log(duplicates)
+        if(duplicates.length === 0) {
             this.list.push(value)
             callback(null, true)
         } else {
@@ -38,8 +38,21 @@ class List {
         }
     }
 
-    getByProperty(prop, callback){
-
+    /**
+     * Get the item having the given email, or error otherwise.
+     * 
+     * @param {*} email 
+     * @param {*} callback 
+     */
+    getByEmail(email, callback) {
+        let item = this.list.filter(function (elem) {
+            return elem.email === email
+        })
+        if (item.length === 1) {
+            callback(null, item[0])
+        } else {
+            callback('Item was not found: ' + email, null)
+        }
     }
     
 }
