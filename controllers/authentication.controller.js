@@ -135,7 +135,7 @@ module.exports = {
             req.body.firstname, 
             req.body.lastname,
             req.body.email,
-            req.body.password,
+            req.body.password
         )
         
         personlist.add(person, (err, result) => {
