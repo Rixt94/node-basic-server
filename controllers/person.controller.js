@@ -17,12 +17,13 @@ module.exports = {
      * @param {*} next ApiError when id is invalid.
      */
     createPerson(req, res, next) {
-        // console.log('personcontroller.createPerson')
         
         try {
-            assert(typeof (req.body.name) === 'object', 'name must be an object containing firstname and lastname.')
-            assert(typeof (req.body.name.firstname) === 'string', 'firstname must be a string.')
-            assert(typeof (req.body.name.lastname) === 'string', 'lastname must be a string.')
+            assert(typeof (req.body) === 'object', 'request body must have an object containing firstname and lastname.')
+            assert(typeof (req.body.firstname) === 'string', 'firstname must be a string.')
+            assert(typeof (req.body.lastname) === 'string', 'lastname must be a string.')
+            assert(typeof (req.body.email) === 'string', 'email must be a string.')
+            assert(typeof (req.body.password) === 'string', 'password must be a string.')
         }
         catch(ex) {
             const error = new ApiError(ex.toString(), 422)
@@ -30,10 +31,12 @@ module.exports = {
             return
         }
 
-        const firstname = req.body.name.firstname
-        const lastname = req.body.name.lastname
-
-        let user = new Person(firstname, lastname)
+        let user = new Person(
+            req.body.firstname, 
+            req.body.lastname,
+            req.body.email,
+            req.body.password
+        )
         personlist.push(user)
 
         res.status(200).json(user.toString()).end();
@@ -92,9 +95,10 @@ module.exports = {
             assert(!isNaN(id) && id >= 0 && id < personlist.length, 'parameter id is invalid: ' + id)
             // And we need a valid person
             assert(typeof (person) === 'object', 'name must be a valid object')
-            assert(person.hasOwnProperty('name'), 'A person must hava a name object')
-            assert(typeof (person.name.firstname) === 'string', 'firstname must be a string')
-            assert(typeof (person.name.firstname) === 'string', 'firstname must be a string')
+            assert(typeof (person.firstname) === 'string', 'firstname must be a string')
+            assert(typeof (person.lastname) === 'string', 'lastname must be a string')
+            assert(typeof (req.body.email) === 'string', 'email must be a string.')
+            assert(typeof (req.body.password) === 'string', 'password must be a string.')
         }
         catch (ex) {
             const error = new ApiError(ex.toString(), 404)
@@ -102,7 +106,12 @@ module.exports = {
             return
         }
 
-        let user = new Person(req.body.name.firstname, req.body.name.lastname)
+        let user = new Person(
+            req.body.firstname, 
+            req.body.lastname,
+            req.body.email,
+            req.body.password
+        )
         personlist[id] = user
         res.status(200).json(user.toString()).end();
     },
@@ -119,13 +128,15 @@ module.exports = {
             return
         }
 
-        // delete die person
+        // Delete this person
         const removedPerson = personlist.splice(id, 1)
         if(removedPerson.length === 1) {
-            // gelukt; status = 200
+            // Success; status = 200
+            // Don't forget: delete the password!
+            delete removedPerson.password
             res.status(200).json(removedPerson.toString()).end();
         } else {
-            // mislukt; fout -> next(error)
+            // Fail -> next(error)
             let error = {
                 message: "Person was not found"
             }

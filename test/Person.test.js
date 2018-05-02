@@ -33,7 +33,7 @@ describe('Person', () => {
         name.should.have.property('firstname').equals('abc')
         name.should.have.property('lastname').equals('def')
         person.should.have.property('email').equals('valid.email@someserver.com')
-        person.should.have.property('password').not.equals('secret')
+        person.should.not.have.property('password')
         done()
     })
 

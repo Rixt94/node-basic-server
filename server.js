@@ -46,7 +46,7 @@ app.use('*', function (req, res, next) {
 // Catch-all error handler according to Express documentation - err should always be an ApiError! 
 // See also http://expressjs.com/en/guide/error-handling.html
 app.use((err, req, res, next) => {
-	console.dir(err)
+	// console.dir(err)
 	res.status((err.code || 404)).json(err).end()	
 })
 
