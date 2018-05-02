@@ -38,8 +38,8 @@ module.exports = {
                 const error = new ApiError(err.message || err, 401)
                 next(error)
             } else {
-                console.log('Authenticated! Payload = ')
-                console.dir(payload)
+                // console.log('Authenticated! Payload = ')
+                // console.dir(payload)
 
                 /**
                  * The token still contains the values that we have put in it via the sub-field.
@@ -86,7 +86,7 @@ module.exports = {
 
         // Verify that the email exists and that the password matches the email.
         personlist.getByEmail(req.body.email, (err, result) => {
-            console.log(result.toString())
+            // console.log(result.toString())
             if(err) {
                 // Email does not exist
                 next(new ApiError('Invalid credentials, bye.', 401))
