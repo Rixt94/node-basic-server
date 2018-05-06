@@ -1,5 +1,6 @@
 //
 // Authentication using JSON Web Token (JWT)
+// Save this e.g. as ./util/auth/authentication.js
 //
 const settings = require('../../config/config')
 const moment = require('moment')
@@ -12,7 +13,7 @@ function encodeToken(username) {
     const playload = {
         exp: moment().add(10, 'days').unix(),
         iat: moment().unix(),
-        sub: username
+        sub: username   // or any object you choose! 
     }
     return jwt.encode(playload, settings.secretkey)
 }
