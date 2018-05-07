@@ -15,7 +15,7 @@ function validateEmail(email) {
 
 class Person {
 
-    constructor(firstname, lastname, email, password){
+    constructor(firstname, lastname, email, password) {
         // Verify that we only create valid persons
         try {
             assert(typeof (firstname) === 'string', 'firstname must be a string')
@@ -67,7 +67,7 @@ class Person {
  * the (encrypted) password!
  * 
  * We use a regular function here instead of a fat-arrow function, since 
- * a fat-arrow (lambda) expression has no access to 'this'.
+ * a fat-arrow (lambda) expression has no access to 'this', which we do need here.
  */
 Person.prototype.toString = function personToString() {
     var copy = Object.assign({}, this);

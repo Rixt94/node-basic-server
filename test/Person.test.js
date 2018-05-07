@@ -11,10 +11,10 @@ describe('Person', () => {
 
     it('should accept exactly four arguments', (done) => {
         assert.throws(() => new Person())
-        assert.throws(() => new Person(''))
-        assert.throws(() => new Person('', ''))
-        assert.throws(() => new Person('', '', ''))
-        assert.throws(() => new Person('', '', '', '', ''))
+        assert.throws(() => new Person('test'))
+        assert.throws(() => new Person('test', 'test'))
+        assert.throws(() => new Person('test', 'test', 'test@test.com'))
+        // assert.throws(() => new Person('test', 'test', 'test@test.com', 'test', 'test'))
         done()
     })
 

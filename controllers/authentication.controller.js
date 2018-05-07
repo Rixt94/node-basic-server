@@ -38,15 +38,15 @@ module.exports = {
                 const error = new ApiError(err.message || err, 401)
                 next(error)
             } else {
-                // console.log('Authenticated! Payload = ')
-                // console.dir(payload)
+                console.log('Authenticated! Payload = ')
+                console.dir(payload)
 
                 /**
-                 * The token still contains the values that we have put in it via the sub-field.
-                 * We could use that in our application to trace actions that a user performs, 
-                 * such as monitoring CRUD operations, by storing the user ID in a logging database.
+                 * The payload contains the values that were put in it via the sub-field.
+                 * We could use those in our application to trace actions that a user performs, 
+                 * such as monitor CRUD operations, by storing the user ID in a logging database.
                  * Example: User 12345 performed an update operation on item xyz on date dd-mm-yyyy.
-                 * To do so, we attach the payload.sub (or only the ID or email) to the request object.
+                 * To do so, we attach the payload.sub (or only a part of that) to the request object.
                  * In this way, every next express handler has access to it - and could do 
                  * something smart with it.  
                  */
@@ -93,9 +93,15 @@ module.exports = {
             } else {
                 bcrypt.compare(req.body.password.trim(), result.password, (err, success) => {
                     if (success) {
-                        // console.log('passwords match, sending valid token')
-                        const userinfo = {
-                            token: auth.encodeToken(result.email),
+                        // console.log('passwords DID match, sending valid token')
+                        // Create an object containing the data we want in the payload.
+                        const payload = {
+                            user: result.email,
+                            role: 'admin, user'
+                        }
+                        // Userinfo returned to the caller.
+                        const userinfo = { 
+                            token: auth.encodeToken(payload),
                             email: result.email
                         }
                         res.status(200).json(userinfo).end()
@@ -148,11 +154,19 @@ module.exports = {
                 // Choices we can make here: 
                 // - return status OK, user must issue separate login request, or
                 // - return valid token, user is immediately logged in.
+
+                // Create an object containing the data we want in the payload.
+                const payload = {
+                    user: req.body.email,
+                    role: 'admin, user'
+                }
+                // Userinfo returned to the caller.
                 const userinfo = {
-                    token: auth.encodeToken(req.body.email),
+                    token: auth.encodeToken(payload),
                     email: req.body.email
                 }
-                res.status(200).json(userinfo).end()            }
+                res.status(200).json(userinfo).end()
+            }
         })
     }
 
