@@ -32,4 +32,4 @@ git clone url-to-your-repo
 cd node-basic-server
 git checkout les-5
 ```
-Checking out branches can also be done in your IDE, such as VS Code or WebStorm.
+Checking out branches can also be done in your IDE. See [Versioncontrol in VS Code](https://code.visualstudio.com/docs/editor/versioncontrol) or [WebStorm](https://www.jetbrains.com/help/webstorm/version-control-integration.html).
