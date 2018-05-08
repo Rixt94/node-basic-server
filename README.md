@@ -24,3 +24,11 @@ For testing:
 npm test
 ```
 
+## Checking out branches
+The different branches contain different parts of the course contents. Check out the highest branch for the latest results. For example:
+
+```
+git clone url-to-your-repo
+cd node-basic-server
+git checkout les-5
+```
