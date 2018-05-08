@@ -32,3 +32,4 @@ git clone url-to-your-repo
 cd node-basic-server
 git checkout les-5
 ```
+Checking out branches can also be done in your IDE, such as VS Code or WebStorm.
