@@ -4,6 +4,7 @@
   "description": "Mijn eerste node server.",
   "main": "server.js",
   "scripts": {
+    "jsdoc": "./node_modules/.bin/jsdoc -d docs -r ./controllers ./model ./routes ./util", 
     "test": "./node_modules/.bin/mocha --reporter spec --exit",
     "start": "nodemon server.js"
   },
@@ -33,6 +34,7 @@
     "morgan": "^1.9.0"
   },
   "devDependencies": {
+    "jsdoc": "^3.5.5",
     "nodemon": "^1.17.3"
   }
 }
