@@ -16,9 +16,11 @@ module.exports = {
 
         const firstname = req.body.firstname
         const lastname = req.body.lastname
-        console.log("We got " + firstname + " " + lastname)
+        const username = req.body.username
+        const password = req.body.password
+        console.log("We got " + firstname + " " + lastname + " with username: " + username)
 
-        let user = new Person(firstname, lastname)
+        let user = new Person(firstname, lastname, username, password)
         // Add to database
         personlist.push(user)
 
@@ -57,7 +59,6 @@ module.exports = {
 
         let user = new Person("Robin", "Schellius")
         res.status(200).json(user).end();
-    },
-
+    }
 
 }

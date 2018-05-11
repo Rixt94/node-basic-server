@@ -3,28 +3,35 @@ const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const person_routes = require('./routes/person_routes')
 const ApiError = require('./model/ApiError')
-
 let app = express()
 
-// bodyParser zorgt dat we de body uit een request kunnen gebruiken,
+var config = require('./config/config');
+const db = require('./config/db.improved')
+
+app.set('PORT', config.webPort);
+app.set('SECRET_KEY', config.secretkey);
+
+app.use(bodyParser.urlencoded({ extended:true }));
 app.use(bodyParser.json());
 
-// Installeer Morgan als logger
-app.use(morgan('dev'));
+//
+app.all('*', function(req, res, next){
+    console.log( req.method + " " + req.url);
+    next();
+});
 
-app.use('*', function(req, res, next){
-	next()
-})
+// Middleware statische bestanden (HTML, CSS, images)
+app.use(express.static(__dirname + '/public'));
 
-app.use('/api', person_routes)
+app.use('/apiv1', person_routes);
+app.use('/apiv2', require('./controllers/status'));
+app.use('/apiv3', require('./routes/routes_apiv3'));
 
-app.get('/api/greeting', function (req, res, next) {
-	let mygreeting = {
-		text: "Hello all!",
-		author: "Robin Schellius"
-	}
-	res.send(mygreeting)
-})
+// Demo route handler - print logregel voor alle /api* endpoints.
+app.use('/api*', function (req, resp, next) {
+    console.log('/api aangeroepen');
+    next();
+});
 
 // Wanneer we hier komen bestond de gevraagde endpoint niet
 app.use('*', function (req, res, next) {
@@ -43,7 +50,7 @@ app.use((err, req, res, next) => {
 	res.status(404).json(error).end()	
 })
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || config.webPort
 
 app.listen(port, () => {
 	console.log('De server draait op port ' + port)
